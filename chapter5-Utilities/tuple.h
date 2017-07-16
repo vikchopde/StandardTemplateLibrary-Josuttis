@@ -7,6 +7,47 @@
 #include <string>
 #include <vector>
 
+//Print Tuple using Variadic templates and metaprogramming
+
+namespace print
+{
+
+    template <int IDX, int MAX, typename ...Args>
+    struct PRINT_TUPLE
+    {
+        static void PrintTuple(std::ostream &out, std::tuple<Args...> &tp)
+        {
+            out << std::get<IDX>(tp) << endl;
+            PRINT_TUPLE < IDX + 1, MAX, Args...>::PrintTuple(out, tp);
+        }
+    };
+
+    //// Note : Learned something heavy here.
+    //// Partial specialization of function templates is not allowed.
+    //// but struct is allowed so wrapping the printtuple under a struct. :)
+
+    template <int MAX, typename ...Args>
+    struct PRINT_TUPLE<MAX, MAX, Args...>
+    {
+        static void PrintTuple(std::ostream &out, std::tuple<Args...> &tp)
+        {
+        }
+    };
+
+    template <typename ...Args>
+    std::ostream& operator << (std::ostream& out, std::tuple<Args...>& tp)
+    {
+        PRINT_TUPLE<0, sizeof...(Args), Args...>::PrintTuple(out,tp);
+    }
+
+    void do_print()
+    {
+        std::string first  = "vik";
+        std::string second = "chop";
+        std::tuple<int, std::string, std::string> person_print {10, first, second};
+        std::cout << person_print << std::endl;
+    }
+}
 void TupleExamples()
 {
     std::string first  = "vik";
@@ -63,10 +104,13 @@ void TupleExamples()
     std::tuple_size<type>::value;   //// size = 3
 
     //tuple element type
-    std::tuple_element<1, type>::type;  //// type = std::string
-
+    //std::tuple_element<1, type>::type;  //// type = std::string
 
 }
+
+
+
+
 
 
 
